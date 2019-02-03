@@ -1,5 +1,8 @@
 # Slim for Reddit
 
+Forked version for own purposes:
+- local media so that clients are not redirected to imgur / i.redd.it for images
+
 A lightweight read-only Reddit client written in Python using the Flask framework.
 
 ![Screenshot of Subreddit view](./screenshots/subreddit_view.png)
