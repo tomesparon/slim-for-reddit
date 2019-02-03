@@ -1,11 +1,19 @@
 import reddit_api_handle
 from flask import Flask
 from flask import render_template
+from flask import request
+from random import randint
+import requests
+from flask import Blueprint
+import os
 
 rh = reddit_api_handle.RedditApiHandle('cCVvYBslK27M_A',
                                        'Utx0lA24OaKWbvUUfKjAow8e9BQ')
 app = Flask(__name__)
+rand=randint(100, 999)
 
+blueprint = Blueprint('tempdl', __name__, static_url_path='/static/tempdl', static_folder='static/tempdl')
+app.register_blueprint(blueprint)
 
 @app.route('/')
 def view_frontpage():
@@ -14,7 +22,9 @@ def view_frontpage():
         'path': '/',
         'limit': '10'
     }
+    
     post_list = rh.get_posts_hot(page['path'], page['limit'])
+    
     return render_template('view_posts.html',
                            page=page,
                            posts=post_list.posts)
@@ -30,6 +40,36 @@ def view_subreddit(subreddit):
     return render_template('view_posts.html',
                            page=page,
                            posts=post_list.posts)
+
+@app.route('/<ran>/post', methods=['GET', 'POST'])
+def view_image(ran):
+    for file in os.listdir("static/tempdl"):
+        if file.endswith(".jpg"):
+            print 'removing..'
+            print(os.path.join("static/tempdl", file))
+            os.remove(os.path.join("static/tempdl", file))
+
+    posturl = request.args.get('imageurl')
+    ##print posturl
+    filename=posturl.split('/')[-1]
+    ##ext=filename.split('.')[-1]
+    ##filename='temp.' + ext
+    
+    
+    #handle different files
+    if  '.jpg' in posturl:
+        downloadImage(posturl, filename)
+        return render_template("view_image.html",
+                             image=filename)
+    elif '.png' in posturl:
+        downloadImage(posturl, filename)
+        return render_template("view_image.html",
+                             image=filename)
+    elif 'reddit.com' in posturl:
+        return 'Reddit post mirrors not available yet'
+    else:
+        return render_template("view_post.html",
+                             post=filename)
 
 
 @app.route('/u/<username>')
@@ -77,6 +117,22 @@ def view_single_comment(post_id):
 def authorise_callback():
     return
 
+
+def downloadImage(imageUrl, localFileName):
+   response = requests.get(imageUrl)
+   if response.status_code == 200:
+      print('Downloading %s...' % (localFileName))
+      with open('static\\tempdl\\' + localFileName, 'wb') as fo:
+           for chunk in response.iter_content(4096):
+               fo.write(chunk)
+
+#a standard call looks like this
+#get_images('http://www.wookmark.com')
+
+
+
+# def is_link_img(img):
+#     return img.contains(".jpg")
 
 if (__name__ == '__main__'):
     app.run()
