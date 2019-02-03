@@ -2,6 +2,7 @@
 
 Forked version for own purposes:
 - local media so that clients are not redirected to imgur / i.redd.it for images
+! VERY HACKY AND NOT USING STATIC FILES MEANINGFULLY !
 
 A lightweight read-only Reddit client written in Python using the Flask framework.
 
